@@ -6,23 +6,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.lzanelzaz.catsphotos.network.Api
+import ru.lzanelzaz.catsphotos.network.CatPhoto
+
+enum class ApiStatus { LOADING, ERROR, DONE }
 
 class OverviewViewModel : ViewModel() {
 
     // The internal MutableLiveData that stores the status of the most recent request
-    private val _status = MutableLiveData<String>()
+    private val _status = MutableLiveData<ApiStatus>()
+    private val _photo = MutableLiveData<CatPhoto>()
 
     // The external immutable LiveData for the request status
-    val status: LiveData<String> = _status
+    val status: LiveData<ApiStatus> = _status
+    val photo: LiveData<CatPhoto> = _photo
 
     init {
         getCatPhoto()
     }
 
-    private fun getCatPhoto() {
+    internal fun getCatPhoto() {
         viewModelScope.launch() {
-            val listResult = Api.retrofitService.getCatPhoto()
-            _status.value = listResult
+            try {
+                _photo.value = Api.retrofitService.getCatPhoto()[0]
+                _status.value = ApiStatus.DONE
+            } catch (e: Exception) {
+                _status.value = ApiStatus.ERROR
+            }
         }
     }
 

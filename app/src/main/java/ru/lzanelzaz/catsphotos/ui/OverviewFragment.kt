@@ -28,6 +28,10 @@ class OverviewFragment : Fragment() {
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel
 
+        binding.button.setOnClickListener {
+            viewModel.getCatPhoto()
+        }
+
         return binding.root
     }
 }
